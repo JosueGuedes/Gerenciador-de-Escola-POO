@@ -1,33 +1,35 @@
 package Person;
-import java.util.Scanner;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Escola {
     String nome_escola;
-    HashMap<String, Turma> turmas_registradas = new HashMap<String, Turma>();
-    HashMap<String, Pessoa> alunos_registrados = new HashMap<String, Pessoa>();
+    public HashMap<String, Turma> turmas_registradas = new HashMap<String, Turma>();
+    public HashMap<String, Pessoa> alunos_registrados = new HashMap<String, Pessoa>();
     public HashMap<String, Pessoa> professores_registrados = new HashMap<String, Pessoa>();
     // A string nos casos acima são o código da turma e do aluno, respectivamente
     
-    public void criar_turma(){
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Qual a matéria lecionadada? ");
-        Turma turma_criada = new Turma(scan.nextLine());
+    public void criar_turma(String materia, Pessoa prof){
+        Turma turma_criada = new Turma(materia, prof);
         turmas_registradas.put(turma_criada.codigo_turma, turma_criada);
-        scan.close();
+        prof.adicionar_turma(turma_criada.codigo_turma);
         System.out.println("Cod. Turma: " + turma_criada.codigo_turma);
-        System.out.println("Professor: " + turma_criada.discente);
+        System.out.println("Professor: " + turma_criada.discente.nome);
         System.out.println("Matéria: " + turma_criada.materia);
     }
 
-    public void criar_aluno(String nome, String materia){
+    public void criar_aluno(String nome, ArrayList<String> codigos_turmas){
         Pessoa aluno_add = new Pessoa(nome, "Aluno");
+        for (String code : codigos_turmas){
+            aluno_add.adicionar_turma(code);
+            turmas_registradas.get(code).adicionar_aluno(aluno_add.codigo, aluno_add);
+        }
         alunos_registrados.put(aluno_add.codigo, aluno_add);
     }
 
