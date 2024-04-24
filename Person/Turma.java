@@ -1,32 +1,28 @@
 package Person;
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class Turma {
-    String codigo_turma, materia;
+    public String codigo_turma, materia;
     static int base = 1000;
     Pessoa discente;
     public HashMap<String, Pessoa> lista_de_alunos = new HashMap<String, Pessoa>(); 
     public HashMap<String, Float> notas = new HashMap<String, Float>(); // A string em questão é codigo do aluno em ambos os casos
 
-    public Turma(String materia){
+    public Turma(String materia, Pessoa professor){
         this.codigo_turma = Integer.toString(base);
         base += 1;
         this.materia = materia;
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Nome do discente: ");
-        String nome = scan.nextLine();
-        this.discente = new Pessoa(nome, "Professor");
-        //scan.close();
+        this.discente = professor;
     }
 
-    public void adicionar_aluno(){
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Nome do aluno: ");
-        String nome = scan.nextLine();
-        Pessoa aluno_adicionado = new Pessoa(nome, "Aluno"); // Um aluno so precisa ter seu nome informado, visto que seu codigo é feito automaticamente
+    public void adicionar_aluno(String codigo_aluno, Pessoa registrado){
+        lista_de_alunos.put(codigo_aluno, registrado);
+         // Um aluno so precisa ter seu nome informado, visto que seu codigo é feito automaticamente
         // E sua ocupação é implicita
-        lista_de_alunos.put(aluno_adicionado.codigo, aluno_adicionado);
+    }
+
+    public void excluir_aluno(String codigo_do_excluid){
+        lista_de_alunos.remove(codigo_do_excluid);
     }
 
     public void get_data(){
