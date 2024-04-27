@@ -1,4 +1,4 @@
-package Frames;
+
 import javax.swing.*;
 import Person.*;
 
@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
-public class MyFrame extends JFrame implements ActionListener{
+public class MyFrame extends JFrame implements ActionListener, Runnable{
     
     JButton botao_prof, botao_aluno, botao_turma,
             botao_submit_prof, botao_submit_turma, botao_submit_aluno,
@@ -19,12 +19,17 @@ public class MyFrame extends JFrame implements ActionListener{
             retornar_button;
 
     Escola school;
-    JComboBox lista_profs;
+    JComboBox<String> lista_profs;
     ArrayList<JRadioButton> opcoes;
     HashMap<String, JTextField> notas;
     JTextField input_nome, input_code, input_excd;
+    JMenuBar menuBar; JMenu arquivo;
+    JMenuItem salvar, carregar;
 
     public MyFrame(){
+    }
+    
+    public void run(){
         this.school = new Escola();
         tela_padrao_criacao();
     }
@@ -41,6 +46,20 @@ public class MyFrame extends JFrame implements ActionListener{
         botao_prof.setFocusable(false);
         botao_prof.addActionListener(this);
         botao_prof.setBounds(30, 400, 300, 30);
+
+        menuBar = new JMenuBar();
+          arquivo = new JMenu("Save/Load");
+            salvar = new JMenuItem("Salvar");
+            salvar.addActionListener(this);
+
+            carregar = new JMenuItem("Carregar");
+            carregar.addActionListener(this);
+
+          arquivo.add(salvar);
+          arquivo.add(carregar);
+          menuBar.add(arquivo);
+
+        this.setJMenuBar(menuBar);
 
         if (school.check_numProfessores() != 0){
             botao_turma = new JButton();
@@ -90,9 +109,8 @@ public class MyFrame extends JFrame implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         clean();
-
+        System.out.println("Mukagen");                        
         if (e.getSource() == botao_prof)
-            // System.out.println("We'll make a greater tomorrow");
             FrameCriacaoProfessor();
         
         else if (e.getSource() == botao_aluno)
@@ -113,13 +131,16 @@ public class MyFrame extends JFrame implements ActionListener{
         }
         else if (e.getSource() == botao_submit_aluno){
             ArrayList<String> turmas_selec = new ArrayList<String>(); // Array que será preenchido com codigos
+            System.out.println("虚式「茈」 Kyoshiki・Murasaki");
             for (JRadioButton botao : opcoes){
                 if (botao.isSelected()){
+                    System.out.println("Botão " + botao.getText() + "selecionado");
                     String codigo_turma_add = botao.getText();
                     turmas_selec.add(codigo_turma_add);
                 }
             }
             school.criar_aluno(input_nome.getText(), turmas_selec);
+            tela_padrao_criacao();
         }
 
         else if (e.getSource() == botao_info_professores)
@@ -144,22 +165,36 @@ public class MyFrame extends JFrame implements ActionListener{
         }
         else if (e.getSource() == btn_atribuir_notas)
             FrameAtribuirNotas(school.turmas_registradas.get(input_code.getText()));
-        else if (e.getSource() == btn_excluir_aluno)
+        else if (e.getSource() == btn_excluir_aluno) // Entra pro frame pra seleção do aluno a ser excluido
             FrameExcluirAluno(school.turmas_registradas.get(input_code.getText()));
-        else if (e.getSource() == btn_exclude){
-            for (String code_turma : school.alunos_registrados.get(input_excd.getText()).codigos_turmas){
-                school.turmas_registradas.get(code_turma).excluir_aluno(input_excd.getText());
-            }
-            school.alunos_registrados.remove(input_excd.getText());
+        else if (e.getSource() == btn_exclude){ 
+            System.out.println("I must say, what a brilliant speech you gave");
+            school.alunos_registrados.get(input_excd.getText()).remover_turma(input_code.getText()); // Remove o codigo da classe Pessoa
+            school.turmas_registradas.get(input_code.getText()).lista_de_alunos.remove(input_excd.getText()); // Remove o aluno da classe Turma
+            tela_padrao_criacao();
         }
         else if (e.getSource() == btn_send_grades){
             for (JTextField termo : notas.values()){
-                Pessoa aluno = new Pessoa(null, null);
+                Pessoa aluno = new Pessoa("", "");
                 for (String code_aluno : notas.keySet()){
                     aluno = school.alunos_registrados.get(code_aluno);}
                 Float nota_convertida = Float.parseFloat(termo.getText());
                 school.turmas_registradas.get(input_code.getText()).atribuir_nota(aluno, nota_convertida);
             }
+            tela_padrao_criacao();
+        }
+        else if (e.getSource() == salvar){
+            System.out.println("Warrior of the MIIIIIIIIIIND");
+            school.salvar(school);
+            System.out.println("Salvo!");
+            tratar();
+            tela_padrao_criacao();
+        }
+        else if (e.getSource() == carregar){
+            this.school = school.carregar();
+            tratar();
+            tela_padrao_criacao();
+            System.out.println("Carregado!");
         }
     }
 
@@ -239,14 +274,13 @@ public class MyFrame extends JFrame implements ActionListener{
         txt_turmas.setText("Turmas: ");
         txt_turmas.setBounds(0, 140, 70, 0);
 
-        ArrayList<JRadioButton> opcoes = new ArrayList<JRadioButton>();
+        opcoes = new ArrayList<JRadioButton>();
         int indice = 0, pulo = 30;
-        // grupo = new ButtonGroup();
 
         for (String turma_idv : school.turmas_registradas.keySet()){
+            System.out.println("Botao criado");
             opcoes.add(new JRadioButton(turma_idv));
             opcoes.get(indice).setBounds(70, 140+pulo, 100, 30);
-            opcoes.get(indice).addActionListener(this);
             this.add(opcoes.get(indice));
             indice += 1;
             pulo += 30;
@@ -363,13 +397,13 @@ public class MyFrame extends JFrame implements ActionListener{
         btn_excluir_aluno = new JButton("Excluir aluno");
         btn_excluir_aluno.addActionListener(this);
         btn_excluir_aluno.setFocusable(false);
-        btn_atribuir_notas.setBounds(340, 300, 75, 50);
+        btn_excluir_aluno.setBounds(400, 400, 75, 50);
 
         this.add(btn_atribuir_notas);
         this.add(btn_excluir_aluno);
 
         JLabel titulo = new JLabel("ADMINISTRAÇÃO DE TURMA");
-        titulo.setBounds(200, 0, 200, 100);
+        titulo.setBounds(200, 0, 400, 100);
         titulo.setFont(new Font("Times New Roman", Font.BOLD, 20));
         this.add(titulo);
         
@@ -401,14 +435,16 @@ public class MyFrame extends JFrame implements ActionListener{
         }
 
         input_excd = new JTextField();
-        input_excd.setBounds(50, 120+pulo_vert, 150, 50);
+        input_excd.setBounds(50, 120+pulo_vert, 150, 30);
         JLabel aux_code = new JLabel("Inserir código: ");
         aux_code.setBounds(0, 120+pulo_vert, 149, 50);
+        this.add(aux_code);
+        this.add(input_excd);
 
         btn_exclude = new JButton("Enviar");
-        btn_exclude.setBounds(201, 120+pulo_vert, 100, 50);
+        btn_exclude.setBounds(201, 120+pulo_vert, 100, 30);
         btn_exclude.addActionListener(this);
-
+        this.add(btn_exclude);
 
         // Vai ter um botão ao lado de cada linha de "Mostrar perfil individual"
         this.setVisible(true);
@@ -450,10 +486,12 @@ public class MyFrame extends JFrame implements ActionListener{
 
         btn_send_grades = new JButton("Mandar");
         btn_send_grades.addActionListener(this);
-        btn_send_grades.setBounds(50, 150+pulo_vert, 60, 30);
+        btn_send_grades.setBounds(50, 150+pulo_vert, 100, 35);
+        this.add(btn_send_grades);
         tratar();
     }
 
+    // A ser feito vvv
     private void FramePerfilIdv(Pessoa analisado){
         JLabel nome = new JLabel(analisado.nome);
         nome.setBounds(50, 50, 100, 50);
