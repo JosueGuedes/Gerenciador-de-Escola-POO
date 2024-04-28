@@ -5,10 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Escola {
+public class Escola implements Serializable {
     String nome_escola;
     public HashMap<String, Turma> turmas_registradas = new HashMap<String, Turma>();
     public HashMap<String, Pessoa> alunos_registrados = new HashMap<String, Pessoa>();
@@ -40,9 +41,9 @@ public class Escola {
 
     public void salvar(Escola school){
         try {
-            FileOutputStream fos = new FileOutputStream("src/Person/dados.txt");
+            FileOutputStream fos = new FileOutputStream("Person/dados.txt");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(school); oos.close();
+            oos.writeObject(school); oos.close(); 
         } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado");
         } catch (IOException r){
@@ -53,7 +54,7 @@ public class Escola {
     public Escola carregar(){
         Escola escola_carregada = new Escola();
         try {
-            FileInputStream fos = new FileInputStream("src/Person/dados.txt");
+            FileInputStream fos = new FileInputStream("Person/dados.txt");
             ObjectInputStream oos = new ObjectInputStream(fos);
             escola_carregada = (Escola) oos.readObject();
             oos.close();
